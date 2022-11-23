@@ -35,9 +35,32 @@ pipeline {
             sh 'ls -la'
           }
         }
+        
+         stage('test app') {
+          agent {
+            docker {
+              image 'gradle:6-jdk11'
+            }
+          }
+          options {
+            skipDefaultCheckout true
+            }
+
+          steps {
+            unstash 'code'
+            sh 'ci/unit-test-app.sh'
+            junit 'app/build/test-results/test/TEST-*.xml'
+          }
+        }
+
 
       }
     }
 
   }
+  post {
+    cleanup {
+        deleteDir() /* clean up our workspace */
+    }
+}
 }
